@@ -14,6 +14,7 @@ import {
   charcoal,
   CaretDownIcon,
   ListItemButton,
+  useTheme,
 } from '@sistent/sistent';
 import { disabledStyleWithOutOpacity } from '../../css/disableComponent.styles';
 
@@ -114,47 +115,52 @@ export const MainLogoText = styled('img')(({ theme }) => ({
 export const ExpandMoreIcon = styled('svg', {
   shouldForwardProp: (prop) => prop !== 'isExpanded' && prop !== 'hasChildren',
 })(({ isExpanded, hasChildren, theme }) => ({
-  opacity: 0, // Initially hidden
+  opacity: 0,
   visibility: 'hidden',
   cursor: 'pointer',
-  display: hasChildren ? 'inline-block' : 'none',
-  transform: isExpanded ? 'rotate(180deg) translateX(-0.8px)' : 'translateX(3px)',
+  display: hasChildren ? 'block' : 'none',
+  transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
   transition:
     'transform 200ms ease-in-out, opacity 200ms ease-in-out, visibility 200ms ease-in-out',
-
-  // Show icon when the parent element is hovered
-  '&:hover, *:hover > &': {
-    opacity: 1,
-    visibility: 'visible',
-  },
-
   '&:hover': {
     fill: theme?.palette?.background?.brand?.default || 'black',
   },
 }));
 
-export const ExpandMore = ({ isExpanded, hasChildren, theme, ...props }) => (
-  <IconButton
-    aria-expanded={!!isExpanded}
-    aria-label={isExpanded ? 'Collapse' : 'Expand'}
-    style={{
-      padding: 0,
-      display: hasChildren ? 'inline-block' : 'none',
-    }}
-    {...props}
-  >
-    <ExpandMoreIcon
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      isExpanded={isExpanded}
-      hasChildren={hasChildren}
+export const ExpandMore = ({ isExpanded, hasChildren, ...props }) => {
+  const theme = useTheme();
+  const hoverBg = alpha(theme?.palette?.navigation?.hover ?? theme?.palette?.common?.white, 0.25);
+  return (
+    <IconButton
+      disableRipple
+      aria-expanded={!!isExpanded}
+      aria-label={isExpanded ? 'Collapse' : 'Expand'}
+      style={{
+        padding: '8px 4px',
+        display: hasChildren ? 'inline-flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '50%',
+        flexShrink: 0,
+        marginRight: '4px',
+      }}
+      sx={{ '&:hover': { backgroundColor: hoverBg } }}
+      {...props}
     >
-      <CaretDownIcon fill={theme.palette.icon.brand} />
-    </ExpandMoreIcon>
-  </IconButton>
-);
+      <ExpandMoreIcon
+        className="expand-caret-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        isExpanded={isExpanded}
+        hasChildren={hasChildren}
+      >
+        <CaretDownIcon fill={theme?.palette?.icon?.brand} />
+      </ExpandMoreIcon>
+    </IconButton>
+  );
+};
 
 export const NavigatorList = styled(List)({
   padding: 0,
@@ -238,7 +244,7 @@ export const NavigatorListItemIII = styled(ListItemButton, {
 
 export const SideBarListItem = styled(ListItemButton, {
   shouldForwardProp: (prop) => prop !== 'link' && prop !== 'isActive' && prop !== 'isShow',
-})(({ link, isActive, isShow, theme }) => ({
+})(({ isActive, isShow, theme }) => ({
   color: isActive ? theme.palette.navigation.active : theme.palette.common.white,
   fill: isActive ? theme.palette.navigation.active : theme.palette.common.white,
   '& a': {
@@ -246,9 +252,7 @@ export const SideBarListItem = styled(ListItemButton, {
     textDecoration: 'none',
   },
   '&:hover': {
-    ...(link && {
-      backgroundColor: alpha(theme.palette.navigation.hover, 0.14),
-    }),
+    backgroundColor: 'transparent',
     color: theme.palette.common.white,
     fill: theme.palette.common.white,
 
@@ -262,6 +266,21 @@ export const SideBarListItem = styled(ListItemButton, {
   pointerEvents: isShow ? 'none' : 'auto',
   opacity: isShow ? 0.5 : '',
   fontSize: '1rem',
+}));
+
+export const NavItemRow = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  '&:hover': {
+    backgroundColor: alpha(
+      theme?.palette?.navigation?.hover ?? theme?.palette?.action?.hover,
+      0.14,
+    ),
+    '& .expand-caret-icon': {
+      opacity: 1,
+      visibility: 'visible',
+    },
+  },
 }));
 
 export const SideBarText = styled(ListItemText)(({ drawerCollapsed }) => ({

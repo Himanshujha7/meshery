@@ -61,6 +61,7 @@ import {
   FixedSidebarFooter,
   SidebarDrawer,
   ExpandMore,
+  NavItemRow,
 } from '../../general/style';
 import { useMediaQuery } from '@sistent/sistent';
 import { getProviderCapabilities, getSystemVersion } from '@/rtk-query/user';
@@ -706,7 +707,7 @@ const NavigatorContent = () => {
               <RootDiv key={childId}>
                 {/* Row wraps the navigable anchor and the expand/collapse caret as
                     siblings so the caret button is never nested inside the anchor. */}
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <NavItemRow>
                   <SideBarListItem
                     dense
                     key={childId}
@@ -767,11 +768,10 @@ const NavigatorContent = () => {
                         toggleItemCollapse(childId);
                       }}
                       isExpanded={openItems.includes(childId)}
-                      theme={theme}
                       hasChildren={hasChildren}
                     />
                   )}
-                </div>
+                </NavItemRow>
                 <Collapse
                   in={openItems.includes(childId)}
                   style={{
