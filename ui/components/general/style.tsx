@@ -268,21 +268,6 @@ export const SideBarListItem = styled(ListItemButton, {
   fontSize: '1rem',
 }));
 
-export const NavItemRow = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  '&:hover': {
-    backgroundColor: alpha(
-      theme?.palette?.navigation?.hover ?? theme?.palette?.action?.hover,
-      0.14,
-    ),
-    '& .expand-caret-icon': {
-      opacity: 1,
-      visibility: 'visible',
-    },
-  },
-}));
-
 export const SideBarText = styled(ListItemText)(({ drawerCollapsed }) => ({
   opacity: drawerCollapsed ? 0 : 1,
   transition: drawerCollapsed ? 'opacity 200ms ease-in-out' : 'opacity 200ms ease-in-out',
@@ -305,11 +290,26 @@ export const PrimaryElement = styled(SideBarText)(({ theme }) => ({
 }));
 export const RootDiv = styled('div', {
   shouldForwardProp: (prop) => prop !== 'show',
-})(({ show }) => ({
+})(({ show, theme }) => ({
   cursor: show ? '' : 'not-allowed',
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
   '& svg': {
     width: '19.36px',
     height: '19.36px',
+  },
+  // Only a direct child (the link or the caret button) hovering should highlight the row -
+  // ':has(> ...)' keeps this from also firing while hovering nested items inside Collapse below.
+  '&:has(> .MuiButtonBase-root:hover)': {
+    backgroundColor: alpha(
+      theme?.palette?.navigation?.hover ?? theme?.palette?.action?.hover,
+      0.14,
+    ),
+    '& .expand-caret-icon': {
+      opacity: 1,
+      visibility: 'visible',
+    },
   },
 }));
 

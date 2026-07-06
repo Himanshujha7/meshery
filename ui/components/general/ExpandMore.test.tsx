@@ -17,6 +17,7 @@ vi.mock('@sistent/sistent', () => {
     CaretDownIcon: (props: any) => <svg data-testid="caret" {...props} />,
     alpha: () => 'rgba(0,0,0,0.1)',
     charcoal: {},
+    useTheme: () => ({ palette: { icon: { brand: '#000' }, navigation: {}, common: {} } }),
     Box: 'div',
     Button: 'button',
     ButtonGroup: 'div',
@@ -36,18 +37,16 @@ vi.mock('../../css/disableComponent.styles', () => ({
 
 import { ExpandMore } from './style';
 
-const theme = { palette: { icon: { brand: '#000' } } } as any;
-
 describe('ExpandMore', () => {
   it('announces a collapsed caret as expandable', () => {
-    render(<ExpandMore isExpanded={false} hasChildren theme={theme} />);
+    render(<ExpandMore isExpanded={false} hasChildren />);
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-expanded', 'false');
     expect(button).toHaveAttribute('aria-label', 'Expand');
   });
 
   it('announces an expanded caret as collapsible', () => {
-    render(<ExpandMore isExpanded hasChildren theme={theme} />);
+    render(<ExpandMore isExpanded hasChildren />);
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-expanded', 'true');
     expect(button).toHaveAttribute('aria-label', 'Collapse');

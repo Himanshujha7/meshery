@@ -61,7 +61,6 @@ import {
   FixedSidebarFooter,
   SidebarDrawer,
   ExpandMore,
-  NavItemRow,
 } from '../../general/style';
 import { useMediaQuery } from '@sistent/sistent';
 import { getProviderCapabilities, getSystemVersion } from '@/rtk-query/user';
@@ -705,78 +704,75 @@ const NavigatorContent = () => {
             const hasChildren = Array.isArray(children) && children.length > 0;
             return (
               <RootDiv key={childId}>
-                {/* Row wraps the navigable anchor and the expand/collapse caret as
-                    siblings so the caret button is never nested inside the anchor. */}
-                <NavItemRow>
-                  <SideBarListItem
-                    dense
-                    key={childId}
-                    link={!!link}
-                    isActive={currentPath === href}
-                    isShow={!show}
-                    onClick={() => {
-                      // Leaf items navigate via their link; there is nothing to expand/collapse,
-                      // so never add them to openItems (doing so would strand them there and break
-                      // the submenu-aware onMouseLeave below).
-                      if (!hasChildren) return;
-                      // Keep an already-open link submenu open when its row is clicked again.
-                      if (link && openItems.includes(childId)) return;
+                {/* SideBarListItem (the navigable anchor) and ExpandMore (the caret) are
+                    siblings, never nested, so the caret button is never nested inside the
+                    anchor. RootDiv lays them out as a flex row; Collapse below forces itself
+                    onto its own line via flexBasis so it isn't drawn into that row. */}
+                <SideBarListItem
+                  dense
+                  key={childId}
+                  link={!!link}
+                  isActive={currentPath === href}
+                  isShow={!show}
+                  onClick={() => {
+                    // Leaf items navigate via their link; there is nothing to expand/collapse,
+                    // so never add them to openItems (doing so would strand them there and break
+                    // the submenu-aware onMouseLeave below).
+                    if (!hasChildren) return;
+                    // Keep an already-open link submenu open when its row is clicked again.
+                    if (link && openItems.includes(childId)) return;
+                    toggleItemCollapse(childId);
+                  }}
+                  onMouseOver={() => (isDrawerCollapsed ? setHoveredId(childId) : null)}
+                  onMouseLeave={() =>
+                    !submenu || !openItems.includes(childId) ? setHoveredId(null) : null
+                  }
+                  disabled={permission ? !CAN(permission.action, permission.subject) : false}
+                  style={{ flex: 1, minWidth: 0 }}
+                  {...(link && href ? { component: Link, href } : {})}
+                >
+                  <NavigatorLink data-testid={childId}>
+                    <CustomTooltip
+                      title={childId}
+                      placement="right"
+                      disableFocusListener={!isDrawerCollapsed}
+                      disableHoverListener={true}
+                      disableTouchListener={!isDrawerCollapsed}
+                      TransitionComponent={Zoom}
+                    >
+                      {isDrawerCollapsed &&
+                      (hoveredId === childId || (openItems.includes(childId) && submenu)) ? (
+                        <div>
+                          <CustomTooltip title={title} placement="right" TransitionComponent={Zoom}>
+                            <ListItemIcon style={{ marginLeft: '20%', marginBottom: '0.4rem' }}>
+                              {hovericon}
+                            </ListItemIcon>
+                          </CustomTooltip>
+                        </div>
+                      ) : (
+                        <MainListIcon>{icon}</MainListIcon>
+                      )}
+                    </CustomTooltip>
+                    <SideBarText drawerCollapsed={isDrawerCollapsed}>{title}</SideBarText>
+                  </NavigatorLink>
+                </SideBarListItem>
+                {hasChildren && (
+                  <ExpandMore
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       toggleItemCollapse(childId);
                     }}
-                    onMouseOver={() => (isDrawerCollapsed ? setHoveredId(childId) : null)}
-                    onMouseLeave={() =>
-                      !submenu || !openItems.includes(childId) ? setHoveredId(null) : null
-                    }
-                    disabled={permission ? !CAN(permission.action, permission.subject) : false}
-                    style={{ flex: 1, minWidth: 0 }}
-                    {...(link && href ? { component: Link, href } : {})}
-                  >
-                    <NavigatorLink data-testid={childId}>
-                      <CustomTooltip
-                        title={childId}
-                        placement="right"
-                        disableFocusListener={!isDrawerCollapsed}
-                        disableHoverListener={true}
-                        disableTouchListener={!isDrawerCollapsed}
-                        TransitionComponent={Zoom}
-                      >
-                        {isDrawerCollapsed &&
-                        (hoveredId === childId || (openItems.includes(childId) && submenu)) ? (
-                          <div>
-                            <CustomTooltip
-                              title={title}
-                              placement="right"
-                              TransitionComponent={Zoom}
-                            >
-                              <ListItemIcon style={{ marginLeft: '20%', marginBottom: '0.4rem' }}>
-                                {hovericon}
-                              </ListItemIcon>
-                            </CustomTooltip>
-                          </div>
-                        ) : (
-                          <MainListIcon>{icon}</MainListIcon>
-                        )}
-                      </CustomTooltip>
-                      <SideBarText drawerCollapsed={isDrawerCollapsed}>{title}</SideBarText>
-                    </NavigatorLink>
-                  </SideBarListItem>
-                  {hasChildren && (
-                    <ExpandMore
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleItemCollapse(childId);
-                      }}
-                      isExpanded={openItems.includes(childId)}
-                      hasChildren={hasChildren}
-                    />
-                  )}
-                </NavItemRow>
+                    isExpanded={openItems.includes(childId)}
+                    hasChildren={hasChildren}
+                  />
+                )}
                 <Collapse
                   in={openItems.includes(childId)}
                   style={{
                     backgroundColor: theme.palette.navigation.secondary,
                     opacity: '100%',
+                    flexBasis: '100%',
                   }}
                 >
                   {renderChildren(childId, children, 1)}
